@@ -21,7 +21,7 @@
 <br><br>
 ## folders structure:
 ![Screenshot from 2023-01-09 03-52-21](https://user-images.githubusercontent.com/75578565/211230186-49dadc2d-1ded-45cc-a412-ba92d92bd007.png)
-##  endpoint in py_client app make sure that venv is activate :
+##  endpoint in py_client app make sure that venv is activate and the server is ready :
  - cd py_client &nbsp; &nbsp; &nbsp; &nbsp; (linux or windows)
  - py list.py &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  (windows)
  - python3 list.py &nbsp; (linux)<br>
