@@ -27,3 +27,10 @@
  - python3 list.py &nbsp; (linux)<br>
  or <br>
  ![Screenshot from 2023-01-09 04-06-28](https://user-images.githubusercontent.com/75578565/211231062-4091a772-1fdb-4392-8446-9a202e00a1e9.png)
+
+# Admin User :
+ - username,password = ahmed
+# Staff User : 
+ - username = staff
+ - password = staffstaff
+
