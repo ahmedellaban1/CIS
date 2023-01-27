@@ -1,28 +1,32 @@
-from rest_framework import authentication,generics, mixins, permissions
+from rest_framework import generics, mixins
 from .models import Product
 from .serializers import ProductSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 # from django.http import Http404
 from django.shortcuts import get_object_or_404 # instead of except  error 404 this function is prepared for dealing with it
-from .permissions import IsStaffEditorPermission
-from api.authentication import TokenAuthentication
+from api.mixins import IsStaffEditorPermissionMixin
 
-class ProductListCreateApiView(generics.ListCreateAPIView):
+class ProductListCreateApiView(
+    IsStaffEditorPermissionMixin,
+    generics.ListCreateAPIView,
+):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        TokenAuthentication
-        # authentication.TokenAuthentication,   # overridden
-    ]
-    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
+    # authentication_classes = [
+    #     authentication.SessionAuthentication,
+    #     TokenAuthentication
+    #     # authentication.TokenAuthentication,   # overridden
+    # ] as i make a defaults in setting.py in restframework default setting
     # 1:39:00 <--------------------------------------
 
 product_list_create_api_view = ProductListCreateApiView.as_view()
 
 
-class ProductDetailApiView(generics.RetrieveAPIView):
+class ProductDetailApiView(
+    IsStaffEditorPermissionMixin,
+    generics.RetrieveAPIView,
+):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     # lookup_field = 'pk'
@@ -30,12 +34,13 @@ class ProductDetailApiView(generics.RetrieveAPIView):
 product_detail_api_view = ProductDetailApiView.as_view()
 
 
-class ProductUpdateApiView(generics.UpdateAPIView):
+class ProductUpdateApiView(
+    IsStaffEditorPermissionMixin,
+    generics.UpdateAPIView,
+):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
-    permission_classes = [permissions.DjangoModelPermissions]
-    
     def perform_update(self, serializer):
         instance = serializer.save()
         if not instance.content:
@@ -45,11 +50,14 @@ product_update_api_view = ProductUpdateApiView.as_view()
 
 
 
-class ProductDestroyAPIView(generics.DestroyAPIView):
+class ProductDestroyAPIView(
+    IsStaffEditorPermissionMixin,
+    generics.DestroyAPIView,
+):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    lookup_field = 'pk'
-    
+    lookup_field = 'pk'    
+
     def perform_distroy(self, instance):
         super().perform_destroy(instance)
         
