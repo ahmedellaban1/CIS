@@ -132,7 +132,7 @@ REST_FRAMEWORK = {
         'api.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES':[
-        'rest_framework.permissions.IsAuthenticatedOrReadonly',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
 
     ]
 }
