@@ -2,8 +2,8 @@
 ## Python 3.10.8
 ## to get django base files path in your PC
  - you should active your venv
- - run this command : python3 -c "import django; print(django.__path__)"
- - ![Screenshot from 2023-02-05 23-17-54](https://user-images.githubusercontent.com/75578565/216847244-d2122e18-17c9-4bbd-873d-702468f4a7db.png)
+ - run this command : python3 -c "import django; print(django.__path__)"<br><br>
+![Screenshot from 2023-02-05 23-17-54](https://user-images.githubusercontent.com/75578565/216847244-d2122e18-17c9-4bbd-873d-702468f4a7db.png)
 
  
 ## after getting this repo in your pc :
