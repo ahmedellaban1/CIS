@@ -5,9 +5,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 # from django.http import Http404
 from django.shortcuts import get_object_or_404 # instead of except  error 404 this function is prepared for dealing with it
-from api.mixins import IsStaffEditorPermissionMixin
+from api.mixins import IsStaffEditorPermissionMixin, UserQuerySetMixin
 
 class ProductListCreateApiView(
+    UserQuerySetMixin,
     IsStaffEditorPermissionMixin,
     generics.ListCreateAPIView,
 ):
@@ -19,6 +20,23 @@ class ProductListCreateApiView(
     #     # authentication.TokenAuthentication,   # overridden
     # ] as i make a defaults in setting.py in restframework default setting
     # 1:39:00 <--------------------------------------
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data.get("title")
+        content = serializer.validated_data.get("content") or None
+        if content is None:
+            content = "this a single view doing cool stup"
+        serializer.save(user=self.request.user,content=content)
+    
+    # we replace this next lines with UserQuerySetMixin
+    # def get_queryset(self, *args, **kwargs):
+    #     qs = super().get_queryset(*args, **kwargs)
+    #     request = self.request
+    #     user = request.user
+    #     if not user.is_authenticated:
+    #         return Product.objects.none()
+    #     return qs.filter(user=request.user)
+        
 
 product_list_create_api_view = ProductListCreateApiView.as_view()
 
@@ -44,7 +62,7 @@ class ProductUpdateApiView(
     def perform_update(self, serializer):
         instance = serializer.save()
         if not instance.content:
-            instance.content = instance.tite
+            instance.content = instance.title
 
 product_update_api_view = ProductUpdateApiView.as_view()
 
