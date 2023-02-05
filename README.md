@@ -1,5 +1,9 @@
 # CIS Task
 ## Python 3.10.8
+## to get django based files path in your PC
+ - you should active your venv
+ - run this command : python3 -c "import django; print(django.__path__)"
+ 
 ## after getting this repo in your pc :
  - for windows user :
     - open CMD in the (repo) folder
