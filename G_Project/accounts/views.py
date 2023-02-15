@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Profile, HerafiInformation
+from django.shortcuts import get_object_or_404
 from main_info.models import Job
 from .serializer import (
     CreateUserAPI,
@@ -16,6 +17,7 @@ from .serializer import (
     IdImgSerializer,
     GetUserAPIView,
     GetProfileAPIView,
+    ResetPassword,
 )
 
 # Create your views here.
@@ -49,10 +51,10 @@ class CreateUserAPIView(generics.CreateAPIView):
         token = Token.objects.create(user=user)
         profile = Profile.objects.get(user_id=user)
 
-        first_name, last_name = fullname(serializer.data['first_name'])
+        first_name, last_name = fullname(serializer.data['full_name'])
         ser2 = AutoUpdateProfileSerializer(profile,
                                            data={
-                                               'full_name': serializer.data['first_name'],
+                                               'full_name': serializer.data['full_name'],
                                                'first_name': first_name,
                                                'last_name': last_name,
                                                'account_type': int(serializer.data['account_type']),
@@ -60,11 +62,11 @@ class CreateUserAPIView(generics.CreateAPIView):
                                            }
                                            )
         account_type = int(serializer.data['account_type'])
-        job_category = int(serializer.data['job_category'])
-        job = Job.objects.get(id=job_category)
         if ser2.is_valid():
             ser2.save()
             if account_type == 2:
+                job_category = int(serializer.data['job_category'])
+                job = Job.objects.get(id=job_category)
                 HerafiInformation.objects.create(profile_id=profile, job_category=job)
 
         response = {
@@ -137,21 +139,13 @@ class UpdateProfileAPIView(generics.UpdateAPIView):
     serializer_class = UpdateProfileAPI
     lookup_field = 'user_id'
 
-    def perform_update(self, serializer):
-        if serializer.is_valid(raise_exception=True):
-            full_mame = serializer.validated_data['full_name']
-            first_name = serializer.validated_data['first_name']
-            last_name = serializer.validated_data['last_name']
-            f_name, l_name = fullname(full_mame)
-            if first_name is None and last_name is None:
-                instance = serializer.save(first_name=f_name, last_name=l_name)
-            elif first_name is None and last_name is not None:
-                instance = serializer.save(first_name=f_name)
-            elif first_name is not None and last_name is None:
-                instance = serializer.save(last_name=l_name)
-            else:
-                instance = serializer.save()
-
+    def update(self, request, *args, **kwargs):
+        partial = kwargs
+        instance = self.get_object()
+        if request.user.id == kwargs['user_id']:
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
             response = {
                 "status": "profile updated successfully",
                 "full_name": f"{instance.full_name}",
@@ -168,6 +162,21 @@ class UpdateProfileAPIView(generics.UpdateAPIView):
                 "status": "user have no permission to edit this profile",
             }
             return Response(response, status=status.HTTP_403_FORBIDDEN)
+
+    def perform_update(self, serializer):
+        if serializer.is_valid(raise_exception=True):
+            full_mame = serializer.validated_data['full_name']
+            first_name = serializer.validated_data['first_name']
+            last_name = serializer.validated_data['last_name']
+            f_name, l_name = fullname(full_mame)
+            if first_name is None and last_name is None:
+                instance = serializer.save(first_name=f_name, last_name=l_name)
+            elif first_name is None and last_name is not None:
+                instance = serializer.save(first_name=f_name)
+            elif first_name is not None and last_name is None:
+                instance = serializer.save(last_name=l_name)
+            else:
+                instance = serializer.save()
 
 
 update_profile = UpdateProfileAPIView.as_view()
@@ -209,7 +218,6 @@ class NationalIdImage(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         partial = kwargs
-        # print(request.META.get('HTTP_AUTHORIZATION'), args, kwargs)
         instance = self.get_object()
         if 'img_id_card' not in request.data:
             response = {
@@ -282,6 +290,63 @@ class AllUserAPIView(mixins.ListModelMixin,
 
 
 all_user = AllUserAPIView.as_view()
+
+
+@api_view(['PUT'])
+def reset_password_api_view(request, pk, *args, **kwargs):
+
+    """
+        {
+        "id":1,
+        "username":"ahmed",
+        "old_password":"ahmed",
+        "password":"ellaban",
+        "confirm_password":"ellaban"
+        }
+        password : the new one
+        old_password : current password
+    """
+    if request.user.id == pk:
+        queryset = get_object_or_404(User, pk=pk)
+        method = request.method
+        if method == "PUT":
+            if list(request.data.keys()) != ['id', 'username', 'old_password', 'password', 'confirm_password']:
+                response = {
+                    "status": "Error data not valid",
+                    "message": "this endpoint should contain this fields "
+                               "['id', 'username', 'old_password', 'password', 'confirm_password'] "
+                }
+                return Response(response)
+            else:
+                username = request.data['username']
+                password = request.data['old_password']
+            if username is None or password is None:
+                response = {
+                    "status": "missed parameter",
+                    "username": "this field is require",
+                    "password": "this field is require"
+                }
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            user = authenticate(username=username, password=password)
+            if user:
+                data = {'password': request.data['password'], 'confirm_password': request.data['confirm_password']}
+                serializer = ResetPassword(queryset, many=False, data=data)
+                if serializer.is_valid(raise_exception=True):
+                    serializer.update(instance=queryset, validated_data=username)
+                    return Response(serializer.data, status=200)
+            elif not user:
+                response = {
+                    "status": "Error ",
+                    "message": "invalid username or password",
+                }
+                return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+
+    elif request.user.id != pk:
+        response = {
+            "status": "FORBIDDEN",
+            "message": "user have no permission to edit this data",
+        }
+        return Response(response, status=status.HTTP_403_FORBIDDEN)
 
 
 """

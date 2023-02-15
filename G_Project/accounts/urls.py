@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     create_user_api_view,
     log_in,
+    reset_password_api_view,
     update_profile,
     log_out,
     national_id_image,
@@ -21,4 +22,5 @@ urlpatterns = [
     path('all-profile/<int:pk>', get_all_profile, name='get-profile_details'),
     path('all-user', all_user, name='all_user'),
     path('all-user/<int:pk>', all_user, name='user_detail'),
+    path('reset-password/<int:pk>', reset_password_api_view, name='reset_password_api_view'),
 ]

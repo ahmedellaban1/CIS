@@ -14,15 +14,15 @@ from .models import profile_img_uploader
 class CreateUserAPI(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
     account_type = serializers.CharField(style={'input_type': 'text'})
-    job_category = serializers.CharField(style={'input_type': int})
+    job_category = serializers.CharField(style={'input_type': int}, required=False)
     gender = serializers.BooleanField(style={'input_type': bool})
-
+    full_name = serializers.CharField(source='User.first_name')
 
     class Meta:
         model = User
         fields = [
             'id',
-            'first_name',
+            'full_name',
             'username',
             'password',
             'password2',
@@ -106,4 +106,23 @@ class GetProfileAPIView(serializers.ModelSerializer):
             'city_id',
             'account_type',
         ]
+
+
+class ResetPassword(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'password',
+            'confirm_password',
+        ]
+
+    def update(self, instance, validated_data):
+        password = self.validated_data['password']
+        confirm_password = self.validated_data['confirm_password']
+        if password != confirm_password:
+            raise serializers.ValidationError({'password': 'password must match'})
+        instance.set_password(password)
+        instance.save()
 
