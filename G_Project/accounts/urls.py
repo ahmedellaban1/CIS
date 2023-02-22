@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
     create_user_api_view,
     log_in,
@@ -9,6 +9,7 @@ from .views import (
     get_all_profile,
     all_user,
 )
+
 
 app_name = 'accounts'
 
@@ -23,4 +24,5 @@ urlpatterns = [
     path('all-user', all_user, name='all_user'),
     path('all-user/<int:pk>', all_user, name='user_detail'),
     path('reset-password/<int:pk>', reset_password_api_view, name='reset_password_api_view'),
+    path('herafi/', include('accounts.routers'), name='herafi_detail'),
 ]

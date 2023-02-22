@@ -12,7 +12,6 @@ from main_info.models import Job
 from .serializer import (
     CreateUserAPI,
     AutoUpdateProfileSerializer,
-    CreateHerafiIfoAPI,
     UpdateProfileAPI,
     IdImgSerializer,
     GetUserAPIView,
@@ -163,21 +162,21 @@ class UpdateProfileAPIView(generics.UpdateAPIView):
             }
             return Response(response, status=status.HTTP_403_FORBIDDEN)
 
-    def perform_update(self, serializer):
-        if serializer.is_valid(raise_exception=True):
-            full_mame = serializer.validated_data['full_name']
-            first_name = serializer.validated_data['first_name']
-            last_name = serializer.validated_data['last_name']
-            f_name, l_name = fullname(full_mame)
-            if first_name is None and last_name is None:
-                instance = serializer.save(first_name=f_name, last_name=l_name)
-            elif first_name is None and last_name is not None:
-                instance = serializer.save(first_name=f_name)
-            elif first_name is not None and last_name is None:
-                instance = serializer.save(last_name=l_name)
-            else:
-                instance = serializer.save()
-
+    # def perform_update(self, serializer):
+    #     if serializer.is_valid(raise_exception=True):
+    #         full_mame = serializer.validated_data['full_name']
+    #         first_name = serializer.validated_data['first_name']
+    #         last_name = serializer.validated_data['last_name']
+    #         f_name, l_name = fullname(full_mame)
+    #         if first_name is None and last_name is None:
+    #             instance = serializer.save(first_name=f_name, last_name=l_name)
+    #         elif first_name is None and last_name is not None:
+    #             instance = serializer.save(first_name=f_name)
+    #         elif first_name is not None and last_name is None:
+    #             instance = serializer.save(last_name=l_name)
+    #         else:
+    #             instance = serializer.save(data=self.request.data)
+    #
 
 update_profile = UpdateProfileAPIView.as_view()
 
@@ -349,48 +348,3 @@ def reset_password_api_view(request, pk, *args, **kwargs):
         return Response(response, status=status.HTTP_403_FORBIDDEN)
 
 
-"""
-@api_view(['PUT'])
-def update_profile(request, id):
-    method = request.method
-    print(f"{request.data} {id}")
-    # and request.user.id == id
-    if method == 'PUT':
-        queryset = Profile.objects.get(user_id=id)
-        serializer = UpdateProfileAPI(queryset, request.data)
-        if serializer.is_valid(raise_exception=True):
-            full_mame = serializer.validated_data['full_name']
-            first_name = serializer.validated_data['first_name']
-            last_name = serializer.validated_data['last_name']
-            f_name, l_name = fullname(full_mame)
-            if first_name is None and last_name is None:
-                instance = serializer.save(first_name=f_name, last_name=l_name)
-            elif first_name is None and last_name is not None:
-                instance = serializer.save(first_name=f_name)
-            elif first_name is not None and last_name is None:
-                instance = serializer.save(last_name=l_name)
-            else:
-                instance = serializer.save()
-
-            response = {
-                "status": "profile updated successfully",
-                "full_name": f"{instance.full_name}",
-                "first_name": f"{instance.first_name}",
-                "last_name": f"{instance.last_name}",
-                "profile_img": f"{instance.profile_img}",
-                "bonuses_points": f"{instance.bonuses_points}",
-                "berth_date": f"{instance.berth_date}",
-                "city_id": f"{instance.city_id}",
-            }
-            return Response(response, status=status.HTTP_200_OK)
-
-        response = {
-            "status": "Error data not valid or somthing went error ",
-        }
-        return Response(response, status=status.HTTP_400_BAD_REQUEST)
-    response = {
-        "status": "user have no permission to edit this profile",
-    }
-    return Response(response, status=status.HTTP_404_NOT_FOUND)
-
-"""

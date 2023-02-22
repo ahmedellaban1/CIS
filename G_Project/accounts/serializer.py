@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from rest_framework.reverse import reverse
+
 
 from .models import (
                     Profile,
-                    AccountType,
                     PreferredHerafies,
-                    HerafiInformation
+                    HerafiInformation,
 )
 from .models import profile_img_uploader
 
@@ -49,16 +50,19 @@ class AutoUpdateProfileSerializer(serializers.ModelSerializer):
         fields = ['full_name', 'first_name', 'last_name', 'account_type', 'gender']
 
 
-class CreateHerafiIfoAPI(serializers.ModelSerializer):
+class HerafiIfoAPI(serializers.ModelSerializer):
+    url_edit = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = HerafiInformation
-        fields = ['profile_id', 'job_category']
+        # fields = '__all__'
+        exclude = ['id', 'job_category', 'profile_id']
+
+    def get_url_edit(self, obj):
+        return f"/accounts/herafi/info/{obj.pk}/"
 
 
 class UpdateProfileAPI(serializers.ModelSerializer):
-    first_name = serializers.CharField(required=False, allow_null=True,)
-    last_name = serializers.CharField(required=False, allow_null=True,)
-    profile_img = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
 
@@ -89,10 +93,15 @@ class GetUserAPIView(serializers.ModelSerializer):
 
 
 class GetProfileAPIView(serializers.ModelSerializer):
+    url_edit = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Profile
         fields = [
             'id',
+            'url_edit',
+            'url',
             'user_id',
             'full_name',
             'first_name',
@@ -106,6 +115,12 @@ class GetProfileAPIView(serializers.ModelSerializer):
             'city_id',
             'account_type',
         ]
+
+    def get_url_edit(self, obj):
+        return f"/accounts/all-profile/{obj.pk}"
+
+    def get_url(self, obj):
+        return f"/accounts/all-profile/"
 
 
 class ResetPassword(serializers.ModelSerializer):
@@ -126,3 +141,12 @@ class ResetPassword(serializers.ModelSerializer):
         instance.set_password(password)
         instance.save()
 
+
+class PreferredHerafiesAPI(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = PreferredHerafies
+        fields = '__all__'
+
+    def get_url(self, obj):
+        return f"/accounts/herafi/preferred-herafi/{obj.pk}"

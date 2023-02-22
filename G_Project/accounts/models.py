@@ -51,7 +51,7 @@ class Profile(models.Model):
                                  help_text='1(selected or True) = female, 0(not-selected or False)  = male')
     bonuses_points = models.BigIntegerField(default=0, null=True, blank=True)
     berth_date = models.DateField(null=True, blank=True)
-    city_id = models.ForeignKey(City, default=2, on_delete=models.CASCADE)
+    city_id = models.ForeignKey(City, default=2, on_delete=models.CASCADE, null=True, blank=True)
     account_type = models.ForeignKey('AccountType', default=1, on_delete=models.CASCADE)
 
     def __str__(self):
