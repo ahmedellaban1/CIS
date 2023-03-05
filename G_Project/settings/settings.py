@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-g%bva8i-cxqml9m7h5zeeg=pdm$lwog@)-rrszi@il5rbu6%p(
 DEBUG = True
 
 ALLOWED_HOSTS = [
-        '3f8f-156-199-129-103.eu.ngrok.io',
+        'localhost',
         '127.0.0.1'
                  ]
 
@@ -34,15 +34,19 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+
+    # default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # rest-framework apps
     'rest_framework',
     'rest_framework.authtoken',
+
     # my apps
     'accounts',
     'main_info',

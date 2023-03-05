@@ -103,6 +103,9 @@ class HerafiInformation(models.Model):
     bio = models.TextField(max_length=1000, null=True, blank=True)
     job_category = models.ForeignKey(Job, on_delete=models.DO_NOTHING, default=1)
     profile_id = models.OneToOneField('Profile', on_delete=models.CASCADE)
+    stars = models.IntegerField(default=0, null=True, blank=True)
+    people_rated = models.IntegerField(default=0, null=True, blank=True)
+    percentage_ratings = models.FloatField(default=0.0, null=True, blank=True)
 
     @receiver(post_save, sender=Profile)
     def create_profile_herafi(sender, instance, created, **kwargs):

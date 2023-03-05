@@ -52,11 +52,11 @@ class AutoUpdateProfileSerializer(serializers.ModelSerializer):
 
 class HerafiIfoAPI(serializers.ModelSerializer):
     url_edit = serializers.SerializerMethodField(read_only=True)
-
+    percentage_ratings = serializers.FloatField(read_only=True)
     class Meta:
         model = HerafiInformation
         # fields = '__all__'
-        exclude = ['id', 'job_category', 'profile_id']
+        exclude = ['id', 'job_category', 'profile_id', 'stars', 'people_rated']
 
     def get_url_edit(self, obj):
         return f"/accounts/herafi/info/{obj.pk}/"

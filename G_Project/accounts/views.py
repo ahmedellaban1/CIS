@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Profile, HerafiInformation
 from django.shortcuts import get_object_or_404
-from main_info.models import Job
+from main_info.models import Job  # type: ignore
 from .serializer import (
     CreateUserAPI,
     AutoUpdateProfileSerializer,
@@ -133,7 +133,7 @@ def log_in(request):
             return Response({"status": "invalid data ", "message": "invalid username or password"}, status=400)
 
 
-class UpdateProfileAPIView(generics.UpdateAPIView):
+class UpdateProfileAPIView(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = UpdateProfileAPI
     lookup_field = 'user_id'
@@ -143,7 +143,7 @@ class UpdateProfileAPIView(generics.UpdateAPIView):
         instance = self.get_object()
         if request.user.id == kwargs['user_id']:
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
+            serializer.is_valid()
             self.perform_update(serializer)
             response = {
                 "status": "profile updated successfully",
@@ -177,6 +177,7 @@ class UpdateProfileAPIView(generics.UpdateAPIView):
     #         else:
     #             instance = serializer.save(data=self.request.data)
     #
+
 
 update_profile = UpdateProfileAPIView.as_view()
 

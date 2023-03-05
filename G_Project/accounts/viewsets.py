@@ -41,7 +41,7 @@ class HerafiViewSetsAPIView(
                 "phone_number": f"{herafi_info.phone_number}",
                 "bio": f"{herafi_info.bio}",
                 "job_category": f"{herafi_info.job_category}",
-                "profile_id": f"{herafi_info.profile_id}"
+                "profile_id": f"{herafi_info.profile_id}",
 
             }
             return Response(response, status=status.HTTP_200_OK)
